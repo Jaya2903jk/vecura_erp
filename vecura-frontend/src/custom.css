@@ -1,0 +1,119 @@
+/* ===================== COMMON VIEW PAGE ===================== */
+
+.view-page {
+    animation: fadeUp .35s ease both;
+}
+
+/* HEADER */
+.view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.view-title {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.view-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* CARD */
+.view-card {
+    padding: 26px;
+}
+
+/* TOP SECTION */
+.view-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* AVATAR */
+.view-avatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    font-weight: 800;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+}
+
+/* GRID */
+.view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.view-box {
+    background: var(--bg-surface2);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px;
+    transition: 0.2s;
+}
+
+.view-box:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-light);
+}
+
+.view-box.full {
+    grid-column: span 2;
+}
+
+/* LABEL */
+.view-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* VALUE */
+.view-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* RESPONSIVE */
+@media(max-width: 768px) {
+    .view-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .view-box.full {
+        grid-column: span 1;
+    }
+}
+.filter-select {
+    padding: 6px 28px 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+}
+
+.filter-select:hover {
+    background: var(--bg-surface2);
+}

@@ -80,12 +80,12 @@ export default function Login() {
                         fontSize: "13px",
                         color: "var(--text-muted)"
                     }}>
-                        Clinical Admin Portal
+                         Admin Portal
                     </p>
                 </div>
 
                 {/* THEME SWITCH */}
-                <div style={{
+                {/* <div style={{
                     display: "flex",
                     justifyContent: "center",
                     gap: "8px",
@@ -118,7 +118,7 @@ export default function Login() {
                     <div className={`theme-dot ${theme==="rose"?"active":""}`}
                         style={{ background: "linear-gradient(135deg,#f472b6,#1a0a0f)" }}
                         onClick={() => setTheme("rose")} />
-                </div>
+                </div> */}
 
                 {/* ERROR */}
                 {error && (

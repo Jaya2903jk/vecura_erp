@@ -12,7 +12,7 @@
 }
 
 /* LIGHT THEME */
-[data-theme="light"] {
+/* [data-theme="light"] {
     --bg-base: #F2F3FC;
     --bg-surface: #ffffff;
     --bg-surface2: #F2F3FC;
@@ -36,9 +36,9 @@
     --input-bg: #F2F3FC;
     --input-border: #E0E0E0;
     --toggle-off: #D8DDE1;
-}
+} */
 
-/* [data-theme="light"] {
+[data-theme="light"] {
   --bg-base: #F2F3FC;
   --bg-surface: #ffffff;
   --bg-surface2: #F2F3FC;
@@ -62,7 +62,7 @@
   --input-bg: #F2F3FC;
   --input-border: #E0E0E0;
   --toggle-off: #D8DDE1;
-}  */
+}
 /* DARK THEME */
 [data-theme="dark"] {
     --bg-base: #0d1117;

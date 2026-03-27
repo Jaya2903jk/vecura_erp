@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
 import Toast from "../components/Toast";
-
+import { useNavigate } from "react-router-dom";
 export default function Tickets() {
     const [showModal, setShowModal] = useState(false);
     const [toastMsg, setToastMsg] = useState("");
+    const navigate = useNavigate();
 
     const openModal = () => setShowModal(true);
     const closeModal = () => setShowModal(false);
@@ -16,7 +17,7 @@ export default function Tickets() {
     // Ticket data
     const tickets = [
         {
-            id: "#TKT-0091",
+            id: "TKT-0091",
             client: "Riya Mehta",
             subject: "Post-session swelling complaint",
             priority: "High",
@@ -26,7 +27,7 @@ export default function Tickets() {
             badgeClass: "b-yellow",
         },
         {
-            id: "#TKT-0090",
+            id: "TKT-0090",
             client: "Sunita Pillai",
             subject: "Reschedule request",
             priority: "Medium",
@@ -36,7 +37,7 @@ export default function Tickets() {
             badgeClass: "b-blue",
         },
         {
-            id: "#TKT-0089",
+            id: "TKT-0089",
             client: "Arun Kumar",
             subject: "Invoice issue",
             priority: "Low",
@@ -49,7 +50,7 @@ export default function Tickets() {
 
     return (
         <div className="page1">
-            {/* <Toast message={toastMsg} /> */}
+            <Toast message={toastMsg} />
             {/* HEADER */}
             <div
                 className="anim-up"
@@ -154,9 +155,19 @@ export default function Tickets() {
                                     <span className={`badge ${t.badgeClass}`}>{t.status}</span>
                                 </td>
                                 <td>
-                                    <button className="btn-sm" onClick={() => showToast("Ticket opened!")}>
+                                    {/* <button className="btn-sm" onClick={() => showToast("Ticket opened!")}>
+                                        Open
+                                    </button> */}
+                                    <button
+                                        className="btn-sm"
+                                        onClick={() => {
+                                            console.log("clicked"); // debug
+                                            navigate(`/ticket/${t.id}`, { state: t });
+                                        }}
+                                    >
                                         Open
                                     </button>
+
                                 </td>
                             </tr>
                         ))}
