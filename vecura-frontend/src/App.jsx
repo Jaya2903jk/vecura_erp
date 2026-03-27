@@ -1,5 +1,6 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AdminLayout from "./layouts/AdminLayout";
@@ -8,12 +9,20 @@ import Tickets from "./pages/Tickets";
 import TicketView from "./pages/TicketView";
 import Department from "./pages/Department";
 import DepartmentView from "./pages/DepartmentView";
+import RequireAuth from "./components/RequireAuth";
 
 export default function App() {
     return (
+
         <Routes>
             <Route path="/" element={<Login />} />
-
+            <Route
+                element={
+                    <RequireAuth>
+                        <AdminLayout />
+                    </RequireAuth>
+                }
+            ></Route>
             <Route element={<AdminLayout />}>
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="clients" element={<Clients />} />
@@ -24,7 +33,7 @@ export default function App() {
 
             </Route>
 
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>
     );
