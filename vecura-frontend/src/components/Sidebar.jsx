@@ -1,15 +1,241 @@
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import logo from "../assets/Updated Logo-19.png"; // Adjust path if needed
+import {
+    Settings,
+    Users,
+    User,
+    Calendar,
+    Package,
+    Box,
+    BarChart3,
+    Grid3x3,
+    FileText,
+    Zap,
+    Truck,
+    TrendingUp,
+    ClipboardList,
+    DollarSign,
+    Phone,
+    Coffee,
+    Award,
+    MapPin,
+    Briefcase,
+    Activity,
+    Pill,
+    MessageSquare,
+    Lock,
+    Eye,
+    Search,
+    Plus,
+    Edit,
+    Trash2,
+    ArrowRight,
+    Circle
+} from "lucide-react";
+
+// Advanced icon mapping - Priority 1: Submenu codes for specific icons
+const getIcon = (name, subMenuCode = "") => {
+    const subMenuCodeMap = {
+        // Admin
+        "SubmenuE80": Settings,      // Employee
+        "SubmenuI102": Award,         // Incentive
+        "SubmenuB81": Activity,       // Biometric
+        "SubmenuB82": Activity,       // Biometric
+        "Submenu19": Users,           // User Management
+        "Submenu82": MessageSquare,   // SMS/Email
+
+        // Master
+        "SMenu1": Briefcase,          // Machine
+        "Submenu5": Coffee,           // Master Data
+        "Submenu13": MapPin,          // Geographic Masters
+        "Submenu14": Calendar,        // Day Target
+        "Submenu15": Pill,            // Treatment Master
+        "SubmenuCC01": Phone,         // Call Center Master
+        "SubmenuNR6": TrendingUp,     // Target
+        "sMenu01": Briefcase,         // Ticket
+
+        // Customer
+        "Submenu1": User,             // Registration
+        "Submenu8": FileText,         // Treatment
+        "Submenu9": DollarSign,       // Bill Details
+        "SubmenuNR3": Zap,            // Discount
+        "PSubmenu40": Eye,            // Consultation Form
+
+        // Appointments
+        "Submenu4": Calendar,         // Scheduling
+        "SMenuItRC01": Phone,         // Call Center
+
+        // Purchase
+        "PMSubMenu31": Package,       // Purchase Master
+        "SSubmenu31": Truck,          // Purchase Order
+        "WSubmenu31": Box,            // Work Order
+        "SSubMenu31": BarChart3,      // GRN
+
+        // Inventory
+        "SM1": Box,                   // Stock
+        "SM2": ClipboardList,         // Indent
+        "SM3": Truck,                 // Stock Inward
+        "SM4": ArrowRight,            // Stock Outward
+        "SM10": Award,                // Asset Stock
+        "SubmenuST01": Zap,           // Stock Transfer
+        "SubmenuW01": TrendingUp,     // Warehouse B2C
+        "PSubmenu65": Coffee,         // Inventory Master
+        "SSubmenu38": Truck,          // Stock Inward Warehouse
+        "SSubmenu41": BarChart3,      // Stock In-Out Admin
+        "VSubmenu29": ArrowRight,     // Stock Outward Warehouse
+
+        // Reports
+        "Submenu61": BarChart3,       // Sales Reports
+        "Submenu60": FileText,        // Customer Reports
+        "Submenu102": Award,          // Incentive Reports
+        "Submenu83": Phone,           // Call Center Report
+        "SubmenuA01": BarChart3,      // Admin Report
+        "SubmenuNR1": TrendingUp,     // New/Regular Clients
+        "SubmenuLO2": Phone,          // Lead Management
+        "SubmenuNR4": Pill,           // GST Report HSN
+        "SubmenuNR5": Pill,           // GST Report SAC
+        "SubmenuT62": TrendingUp,     // Sales
+
+        // Dashboard
+        "SubmenuD01": DollarSign,     // Heads Sales
+        "SubmenuD02": TrendingUp,     // Inflow Sales
+        "SubmenuD03": FileText,       // Visits
+        "SubmenuD04": Briefcase,      // V Support
+        "SubmenuD05": MessageSquare,  // Feedback
+        "SubmenuD06": BarChart3,      // Branch Report
+        "SubmenuD07": Box,            // Stock Inward
+        "SubmenuCC02": Phone,         // Call Center Dashboard
+        "SubMDSR01": Calendar,        // DTR
+        "SubmenuIOU1": DollarSign,    // IOU
+        "DSubmenu01": Lock,           // Petty Cash
+        "DSubmenu02": Users,          // Manpower Requisition
+        "DSubmenu56": Settings,       // Operations
+        "BASub001": Eye,              // Before After Photo
+        "BAWSub001": TrendingUp,      // Weight Loss
+        "SubMenuD1000": Calendar,     // Schedule Pending
+        "SubmenuD061": Award,         // Milestones
+        "DSubmenuAu01": Lock,         // Audit
+        "SubmenuAu01": Eye,           // Call Center Audit
+    };
+
+    if (subMenuCode && subMenuCodeMap[subMenuCode]) {
+        return subMenuCodeMap[subMenuCode];
+    }
+
+    // Priority 2: Keyword matching for item-level icons
+    const key = name.toLowerCase();
+    const itemKeywords = [
+        { keywords: ["transaction", "payment", "cash", "deposit", "refund"], icon: DollarSign },
+        { keywords: ["report", "analysis"], icon: BarChart3 },
+        { keywords: ["user", "employee", "staff", "member"], icon: Users },
+        { keywords: ["customer", "client"], icon: User },
+        { keywords: ["appointment", "schedule", "booking"], icon: Calendar },
+        { keywords: ["treatment", "therapy"], icon: Pill },
+        { keywords: ["inventory", "stock", "warehouse"], icon: Box },
+        { keywords: ["purchase", "order", "vendor"], icon: Package },
+        { keywords: ["sales", "invoice", "bill"], icon: TrendingUp },
+        { keywords: ["audit", "approval", "authorization"], icon: Lock },
+        { keywords: ["document", "file", "upload"], icon: FileText },
+        { keywords: ["communication", "sms", "email", "notification"], icon: MessageSquare },
+        { keywords: ["call", "phone"], icon: Phone },
+        { keywords: ["target", "goal", "achievement"], icon: Award },
+        { keywords: ["location", "branch", "area"], icon: MapPin },
+        { keywords: ["transport", "delivery"], icon: Truck },
+        { keywords: ["feedback", "comment"], icon: MessageSquare },
+        { keywords: ["configuration", "setting", "master"], icon: Settings },
+        { keywords: ["search", "view", "display"], icon: Eye },
+        { keywords: ["add", "create", "new"], icon: Plus },
+        { keywords: ["edit", "update", "change"], icon: Edit },
+        { keywords: ["cancel", "delete", "remove"], icon: Trash2 },
+    ];
+
+    for (let item of itemKeywords) {
+        for (let keyword of item.keywords) {
+            if (key.includes(keyword)) {
+                return item.icon;
+            }
+        }
+    }
+
+    return Circle; // Default fallback icon
+};
 
 export default function Sidebar() {
     const navigate = useNavigate();
+    const [menus, setMenus] = useState([]);
+    const [submenus, setSubmenus] = useState([]);
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [expandedmenus, setExpandedMenus] = useState({});
+
+    useEffect(() => {
+        fetchMenus();
+    }, []);
+
+    const fetchMenus = async () => {
+        const token = localStorage.getItem("token");
+        try {
+            const response = await axios.get(
+                "http://127.0.0.1:8000/api/menu",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            if (response.data.status) {
+                setMenus(response.data.menus || []);
+                setSubmenus(response.data.submenus || []);
+                setItems(response.data.items || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch menus:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleMenu = (menuCode) => {
+        setExpandedMenus((prev) => ({
+            ...prev,
+            [menuCode]: !prev[menuCode]
+        }));
+    };
 
     const gotoPage = (page) => {
         navigate("/" + page);
     };
 
-    const doLogout = () => {
-        navigate("/");
+    const doLogout = async () => {
+
+        const token = localStorage.getItem("token");
+        // console.log("Token being sent:", token);
+        try {
+
+            if (token) {
+                await axios.post(
+                    "http://127.0.0.1:8000/api/logout",
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+            }
+
+        } catch (err) {
+            console.log("Logout API failed, forcing logout");
+        }
+        localStorage.clear();
+        sessionStorage.clear();
+        window.history.replaceState(null, "", "/login");
+
+
+        localStorage.removeItem("token");
+        window.location.href = "/login";
     };
 
     return (
@@ -29,9 +255,7 @@ export default function Sidebar() {
                         boxShadow: "0 4px 12px var(--accent-glow)"
                     }}
                 >
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                    </svg>
+                    <img src="https://www.vecurawellness.com/Lassets/img/logo.webp" alt="VeCura Logo" style={{ width: "100%", height: "100%", borderRadius: "6px", objectFit: "contain" }} />
                 </div>
 
                 <div className="logo-txt" style={{ overflow: "hidden" }}>
@@ -45,100 +269,87 @@ export default function Sidebar() {
             </div>
 
             <nav style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
+                {menus.length === 0 ? (
+                    <div style={{ padding: "16px", textAlign: "center", color: "var(--text-muted)" }}>
+                        No menus available
+                    </div>
+                ) : (
+                    menus.map((menu) => {
+                        const menuSubmenus = submenus.filter((sub) => sub.MenuCode === menu.MenuCode);
+                        const isExpanded = expandedmenus[menu.MenuCode];
 
-                <div className="nav-section-title">Overview</div>
+                        return (
+                            <div key={menu.MenuCode}>
+                                <div
+                                    className="nav-item"
+                                    onClick={() => toggleMenu(menu.MenuCode)}
+                                    style={{
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        fontWeight: 600,
+                                        padding: "10px 12px",
+                                        // color: "var(--text-nav)"
+                                    }}
+                                >
+                                    <span>{menu.MenuName}</span>
+                                    <ArrowRight
+                                        size={16}
+                                        style={{
+                                            transition: "transform 0.3s ease",
+                                            transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)"
+                                        }}
+                                    />
+                                </div>
 
-                <div className="nav-item act" onClick={() => gotoPage("dashboard")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /></svg>
-
-                    <span className="nav-lbl">Dashboard</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("analytics")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
-
-                    <span className="nav-lbl">Analytics</span>
-                </div>
-
-                <div className="nav-section-title">Clinic</div>
-
-                <div className="nav-item" onClick={() => gotoPage("clients")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-
-                    <span className="nav-lbl">Clients</span>
-                    <span className="nav-pill">8</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("doctors")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-
-                    <span className="nav-lbl">Doctors</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("appointments")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-
-                    <span className="nav-lbl">Appointments</span>
-                    <span className="nav-pill">5</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("treatments")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
-
-                    <span className="nav-lbl">Treatments</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("sessions")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-
-                    <span className="nav-lbl">Sessions</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("consultation")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-
-                    <span className="nav-lbl">Consultation</span>
-                </div>
-
-                <div className="nav-section-title">Finance & Support</div>
-
-                <div className="nav-item" onClick={() => gotoPage("invoices")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
-
-                    <span className="nav-lbl">Invoices</span>
-                </div>
-
-                <div className="nav-item" onClick={() => navigate("/tickets")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z" /></svg>
-
-                    <span className="nav-lbl">Tickets</span>
-                    <span className="nav-pill">3</span>
-                </div>
-                <div className="nav-item" onClick={() => navigate("/department")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z" /></svg>
-
-                    <span className="nav-lbl">Department</span>
-                </div>
-
-
-                <div className="nav-item" onClick={() => gotoPage("calendar")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-
-                    <span className="nav-lbl">Calendar</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("uploads")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-
-                    <span className="nav-lbl">Image Uploads</span>
-                </div>
-
-                <div className="nav-item" onClick={() => gotoPage("settings")}>
-                    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-
-                    <span className="nav-lbl">Settings</span>
-                </div>
-
+                                {isExpanded && menuSubmenus.length > 0 && (
+                                    <div style={{ paddingLeft: "12px" }}>
+                                        {menuSubmenus.map((submenu) => {
+                                            const subItems = items.filter(
+                                                (item) => item.SubMenuCode === submenu.SubMenuCode
+                                            );
+                                            return (
+                                                <div key={submenu.SubMenuCode}>
+                                                    {subItems.length > 0 ? (
+                                                        subItems.map((item) => (
+                                                            <div
+                                                                key={item.MenuItemCode}
+                                                                className="nav-item"
+                                                                onClick={() =>
+                                                                    gotoPage(item.MenuItemName.toLowerCase().replace(/\s+/g, ""))
+                                                                }
+                                                            >
+                                                                {(() => {
+                                                                    const IconComponent = getIcon(item.MenuItemName, submenu.SubMenuCode);
+                                                                    return <IconComponent className="nav-ico" size={20} />;
+                                                                })()}
+                                                                <span className="nav-lbl">{item.MenuItemName}</span>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div
+                                                            className="nav-item"
+                                                            onClick={() =>
+                                                                gotoPage(submenu.SubMenuName.toLowerCase().replace(/\s+/g, ""))
+                                                            }
+                                                        >
+                                                            {(() => {
+                                                                const IconComponent = getIcon(submenu.SubMenuName, submenu.SubMenuCode);
+                                                                return <IconComponent className="nav-ico" size={20} />;
+                                                            })()}
+                                                            <span className="nav-lbl">{submenu.SubMenuName}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })
+                )}
             </nav>
 
             <div style={{ padding: "12px", borderTop: "1px solid var(--border-soft)" }}>
